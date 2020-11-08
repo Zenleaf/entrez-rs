@@ -3,6 +3,7 @@
 > A Rust wrapper for the Entrez API 
 
 release: [![Crates.io][ci]][cl] 
+
 [ci]: https://img.shields.io/crates/v/entrez-rs.svg
 [cl]: https://crates.io/crates/entrez-rs/
 
