@@ -2,7 +2,7 @@
 
 > A Rust wrapper for the Entrez API 
 
-release: [![Crates.io][ci]][cl]
+release: [![Crates.io][ci]][cl] 
 [ci]: https://img.shields.io/crates/v/entrez-rs
 [cl]: https://crates.io/crates/entrez-rs
 ![Build Status](https://travis-ci.org/Zenleaf/entrez-rs.svg?branch=master)
