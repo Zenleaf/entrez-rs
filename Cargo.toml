@@ -2,7 +2,6 @@
 name = "entrez-rs"
 version = "0.1.0"
 authors = ["Suneej Surendran-Nair <suneejnair@gmail.com>"]
-edition = "2018"
 description = "Rust wrapper for the Entrez API"
 
 repository = "https://github.com/Zenleaf/entrez-rs.git"
