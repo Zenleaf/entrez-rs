@@ -7,7 +7,7 @@ description = "Rust wrapper for the Entrez API"
 repository = "https://github.com/Zenleaf/entrez-rs.git"
 
 readme = "README.md"
-keywords = ["entrez", "bioinformatics", "pubmed", "gene", "blast", "ncbi", "entrezpy", "biorust"]
+keywords = ["entrez", "bioinformatics", "pubmed", "gene", "ncbi"]
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 categories = ["bioinformatics", "parsing", "gene", "medical"]
 license = "MIT"
