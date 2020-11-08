@@ -1,10 +1,9 @@
 extern crate quick_xml;
+extern crate serde;
 
 use quick_xml::Reader;
 use quick_xml::events::Event;
-
-use serde::{Deserialize, Deserializer};
-use quick_xml::de::{from_str, DeError};
+use quick_xml::de::{ DeError};
 
 
 #[derive(Debug, PartialEq)]

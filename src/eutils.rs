@@ -1,8 +1,5 @@
-pub mod parser;
 
 use std::fmt::{Display, Formatter};
-use parser::*;
-use quick_xml::de::{from_str, DeError};
 
 
 const BASE: &str = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/";
