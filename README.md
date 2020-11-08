@@ -2,7 +2,7 @@
 
 > A Rust wrapper for the Entrez API 
 
-![Crates.io](https://crates.io/crates/entrez-rs)
+![Crates.io[https://img.shields.io/crates/v/entrez-rs]](https://crates.io/crates/entrez-rs)
 ![Build Status](https://travis-ci.org/Zenleaf/entrez-rs.svg?branch=master)
 
 This library helps you access the Entrez API using idiomatic Rust.
