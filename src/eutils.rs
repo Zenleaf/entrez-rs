@@ -26,7 +26,7 @@ impl Eutil<'_> {
         pub fn url(&self) -> String {
             match self {
                 Eutil::ESearch { db, query } => {
-                format!("{}esearch.fcgi?db={}&term={}&usehistory=y&retmax=16", 
+                format!("{}esearch.fcgi?db={}&term={}&usehistory=y", 
                 BASE,
                 db,
                 query)
