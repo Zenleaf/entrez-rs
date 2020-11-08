@@ -1,6 +1,6 @@
 # entrez-rs
 
-## A Rust wrapper around the Entrez API 
+> A Rust wrapper around the Entrez API 
 
 ![Build Status](https://travis-ci.org/Zenleaf/entrez-rs.svg?branch=master)
 
