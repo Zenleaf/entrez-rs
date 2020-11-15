@@ -1,6 +1,7 @@
 pub mod eutils;
 pub mod parser;
 
+extern crate roxmltree;
 extern crate quick_xml;
 extern crate serde;
 

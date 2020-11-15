@@ -1,315 +1,568 @@
-extern crate quick_xml;
-extern crate serde;
-
-use quick_xml::Reader;
-use quick_xml::events::Event;
-use quick_xml::de::{ DeError};
+use roxmltree::{Node};
 
 
+// PubmedData fields
 #[derive(Debug, PartialEq)]
-pub struct PubmedArticleSet {
-    pub pubmed_articles: Vec<PubmedArticle>
+pub struct Reference {
+    citation: Option<String>,
+    article_id_list: ArticleIdList
 }
 
 #[derive(Debug, PartialEq)]
-pub struct PubmedArticle {
-    pub medline_citation: MedlineCitation
+pub struct ArticleId {
+    id_type: Option<String>,
+    id: Option<String>
 }
 
 #[derive(Debug, PartialEq)]
-pub struct MedlineCitation{
-    pub article: Article
+pub struct ArticleIdList {
+    article_ids: Vec<ArticleId>
 }
 
 #[derive(Debug, PartialEq)]
-pub struct Article{
-    pub title: String,
-    pub abstracts: Vec<AbstractText>
+pub struct ReferenceList {
+    references: Vec<Reference>
+}
+
+#[derive(Debug, PartialEq)]
+pub struct PubmedData {
+    publication_status: Option<String>,
+    article_id_list: Option<ArticleIdList>,
+    reference_list: Option<ReferenceList>,
+    history: Vec<PubMedPubDate>
+}
+
+#[derive(Debug, PartialEq)]
+pub struct PubMedPubDate {
+    pub_status: Option<String>,
+    year: Option<String>,
+    month: Option<String>,
+    day: Option<String>
+}
+
+// MedlineCitation Fields
+#[derive(Debug, PartialEq)]
+pub struct PMID {
+    version: Option<String>,
+    value: Option<String>
+}
+
+#[derive(Debug, PartialEq)]
+pub struct ISSN {
+    issn_type: Option<String>,
+    value: Option<String>
+}
+
+#[derive(Debug, PartialEq)]
+pub struct PubDate {
+    year: Option<String>,
+    month: Option<String>,
+    day: Option<String>
+}
+
+#[derive(Debug, PartialEq)]
+pub struct JournalIssue {
+    cited_medium: Option<String>,
+    volume: Option<String>,
+    issue: Option<String>,
+    pub_date: Option<PubDate>
+}
+
+#[derive(Debug, PartialEq)]
+pub struct Journal {
+    issn: Option<ISSN>,
+    journal_issue: Option<JournalIssue>,
+    title: Option<String>,
+    iso_abbr: Option<String>
+}
+
+#[derive(Debug, PartialEq)]
+pub struct ELocationID {
+    eid_type: Option<String>,
+    valid_yn: Option<String>,
+    value: Option<String>
 }
 
 #[derive(Debug, PartialEq)]
 pub struct AbstractText {
-    pub text: String,
+    label: Option<String>,
+    nlm_category: Option<String>,
+    value: Option<String>
 }
 
-/*
- Need this this parser to manually parse PubmedArticle results 
- returned in XML format. 
+#[derive(Debug, PartialEq)]
+pub struct Abstract {
+    text: Vec<AbstractText>
+}
 
- Once it is possible to  do the same using Serde will use
- the conventional serde way to deserialize XML pubmed article.
+#[derive(Debug, PartialEq)]
+pub struct Article {
+    pub_model: Option<String>,
+    title: Option<String>,
+    journal: Option<Journal>,
+    elocation_id: Option<ELocationID>,
+    language: Option<String>,
+    abstract_text: Option<Abstract>
+}
 
-*/
-pub fn parse_pubmed(xml: &str) -> Result<PubmedArticle, DeError> {
-    let mut pub_art_set = PubmedArticle {
-        medline_citation: MedlineCitation {
-            article: Article {
-                title: "".to_string(),
-                abstracts: Vec::new()
+#[derive(Debug, PartialEq)]
+pub struct MedlineCitation {
+    status: Option<String>,
+    owner: Option<String>,
+    pmid: Option<PMID>,
+    date_revised: Option<PubDate>,
+    article: Option<Article>
+}
+
+
+pub trait FromXMLNode {
+    fn from_node(node: &Node) -> Self;
+}
+
+//PubmedData fields
+impl FromXMLNode for ArticleIdList {
+    fn from_node(node: &Node) -> Self {
+        let mut article_id_list = ArticleIdList {
+            article_ids: Vec::new()
+        };
+        
+        for elem in node
+                         .children()
+                         .filter(|n| n.is_element()) {
+
+            article_id_list
+            .article_ids
+            .push(
+                ArticleId::from_node(&elem)
+            )                    
+
+                        
+        }
+
+        article_id_list
+    }
+}
+impl FromXMLNode for ArticleId {
+    fn from_node(node:&Node) -> Self {
+        ArticleId {
+            id_type: node.attribute("IdType").map(|n| n.to_string()),
+            id: node.text().map(|n| n.to_string())
+                     
+       }
+    } 
+}
+impl FromXMLNode for Reference {
+    fn from_node(node: &Node) -> Self {
+        let mut reference = Reference {
+            citation: None,
+            article_id_list: ArticleIdList {
+                article_ids: Vec::new()
+            }
+        };
+
+        for elem in node.children().filter(|x| x.is_element()) {
+            match elem.tag_name().name() {
+                "Citation" => reference.citation = elem.text().map(|x| x.to_string()),
+                "ArticleIdList"  => reference.article_id_list = ArticleIdList::from_node(&elem),
+                _          => ()
             }
         }
-    };
-    
-    let mut buf = Vec::new();
-    let mut reader = Reader::from_str(&xml);
+        reference
+    }
+}
+impl FromXMLNode for ReferenceList {
+    fn from_node(node: &Node) -> Self {
+        let mut referene_list = ReferenceList {
+            references: Vec::new()
+        };
 
-    'outer:loop {
-        match &reader.read_event(&mut buf) {
-            Ok(Event::Start(e)) => match e.name() {
-                b"ArticleTitle" => {
-                   match reader.read_event(&mut buf) {
-                       Ok(Event::Text(e)) => {
-                           pub_art_set
-                           .medline_citation
-                           .article
-                           .title = e.unescape_and_decode(&reader)?;
-                   },
-                   Err(e) => panic!("Error at position {}: {:?}", reader.buffer_position(), e),
-                _ => ()
-                }
-            },
-                b"Abstract" => {
-                    'inner:loop {
-                        let abs = &pub_art_set
-                                  .medline_citation
-                                  .article
-                                  .abstracts.len() ;
-
-                        match &reader.read_event(&mut buf) {
-                            Ok(Event::Text(e)) => {
-                                if *abs != 0 {
-                                    pub_art_set
-                                .medline_citation
-                                .article
-                                .abstracts[*abs - 1]
-                                .text
-                                .push_str(
-                                    &e.unescape_and_decode(&reader)?
-                                )
-                                }
-                            },
-                            Err(e) => panic!("Error at position {}: {:?}", reader.buffer_position(), e),
-                            Ok(Event::Start(e)) => match e.name() {
-                                b"b" => {
-                                    pub_art_set
-                                    .medline_citation
-                                    .article
-                                    .abstracts[*abs - 1]
-                                   .text
-                                   .push_str("<b>");
-
-                                   match &reader.read_event(&mut buf) {
-                                    Ok(Event::Text(e)) => {
-                                        pub_art_set
-                                        .medline_citation
-                                        .article
-                                        .abstracts[*abs - 1]
-                                        .text
-                                        .push_str(
-                                            &e.unescape_and_decode(&reader)?
-                                        )},
-                                    _ => ()
-                                    }
-                                
-                            
-                            },
-                            b"mml:math" => {
-                                pub_art_set
-                                .medline_citation
-                                .article
-                                .abstracts[*abs - 1]
-                               .text
-                               .push_str("<mml:math>");
-
-                               match &reader.read_event(&mut buf) {
-                                Ok(Event::Text(e)) => {
-                                    pub_art_set
-                                    .medline_citation
-                                    .article
-                                    .abstracts[*abs - 1]
-                                    .text
-                                    .push_str(
-                                        &e.unescape_and_decode(&reader)?
-                                    )},
-                                _ => ()
-                                }},
-                                b"mml:mo" => {
-                                    pub_art_set
-                                    .medline_citation
-                                    .article
-                                    .abstracts[*abs - 1]
-                                   .text
-                                   .push_str("<mml:mo>");
-    
-                                   match &reader.read_event(&mut buf) {
-                                    Ok(Event::Text(e)) => {
-                                        pub_art_set
-                                        .medline_citation
-                                        .article
-                                        .abstracts[*abs - 1]
-                                        .text
-                                        .push_str(
-                                            &e.unescape_and_decode(&reader)?
-                                        )},
-                                    _ => ()
-                                    }},
-                            b"sup" => {
-                                pub_art_set
-                                .medline_citation
-                                .article
-                                .abstracts[*abs - 1]
-                               .text
-                               .push_str("<sup>");
-
-                               match &reader.read_event(&mut buf) {
-                                Ok(Event::Text(e)) => {
-                                    pub_art_set
-                                    .medline_citation
-                                    .article
-                                    .abstracts[*abs - 1]
-                                    .text
-                                    .push_str(
-                                        &e.unescape_and_decode(&reader)?
-                                    )},
-                                _ => ()
-                                }},
-                            b"sub" => {
-                                pub_art_set
-                                .medline_citation
-                                .article
-                                .abstracts[*abs - 1]
-                               .text
-                               .push_str("<sub>");
-
-                               match &reader.read_event(&mut buf) {
-                                Ok(Event::Text(e)) => {
-                                    pub_art_set
-                                    .medline_citation
-                                    .article
-                                    .abstracts[*abs - 1]
-                                    .text
-                                    .push_str(
-                                        &e.unescape_and_decode(&reader)?
-                                    )},
-                                _ => ()
-                                }
-                            },
-                            b"i" => {
-                                pub_art_set
-                                .medline_citation
-                                .article
-                                .abstracts[*abs - 1]
-                                .text
-                                .push_str(
-                                    "<i>"
-                                );
-
-                                match &reader.read_event(&mut buf) {
-                                    Ok(Event::Text(e)) => {
-                                        pub_art_set
-                                        .medline_citation
-                                        .article
-                                        .abstracts[*abs - 1]
-                                        .text
-                                        .push_str(
-                                            &e.unescape_and_decode(&reader)?
-                                        )},
-                                    _ => ()
-                                    }
-                               },
-                                b"AbstractText" => {
-                                    pub_art_set
-                                    .medline_citation
-                                    .article
-                                    .abstracts
-                                    .push(
-                                        AbstractText {
-                                            text: "".to_string()
-                                        }
-                                    );
-                                    
-
-                                    match &reader.read_event(&mut buf) {
-                                        Err(e) => panic!("Error at position {}: {:?}", reader.buffer_position(), e),
-                                        Ok(Event::Text(e)) => {
-                                            pub_art_set
-                                            .medline_citation
-                                            .article
-                                            .abstracts[*abs]
-                                            .text
-                                            .push_str(
-                                                &e.unescape_and_decode(&reader)?
-                                            )
-                                        },
-                                        _ => ()
-                                    }
-                                },
-                               
-                                _ => ()
-                                
-    
-                            },
-                            
-                            Ok(Event::End(e)) => match e.name() {
-                                b"i" => {
-                                    pub_art_set
-                                    .medline_citation
-                                    .article
-                                    .abstracts[*abs - 1]
-                                    .text
-                                    .push_str(
-                                        "</i>"
-                                    )
-                                   },
-                                b"sup" => {
-                                    pub_art_set
-                                    .medline_citation
-                                    .article
-                                    .abstracts[*abs - 1]
-                                    .text
-                                    .push_str(
-                                        "</sup>"
-                                    )
-                                   },
-                                   b"sub" => {
-                                    pub_art_set
-                                    .medline_citation
-                                    .article
-                                    .abstracts[*abs - 1]
-                                    .text
-                                    .push_str(
-                                        "</sub>"
-                                    )
-                                   },
-                                   b"b" => {
-                                    pub_art_set
-                                    .medline_citation
-                                    .article
-                                    .abstracts[*abs - 1]
-                                    .text
-                                    .push_str(
-                                        "</b>"
-                                    )
-                                   },
-                                b"Abstract" => break 'inner,
-                                _           => ()
-                            }
-                            _ => ()
+        for elem in node
+                        .children()
+                        .filter(|n| n.is_element()) {
+                            referene_list.references.push(
+                                Reference::from_node(&elem)
+                            )
                         }
-                    }
-                    },
-                _ => ()
-    },
-           
-            Ok(Event::End(e)) => match e.name() {
-                b"AuthorList" => break 'outer,
-                _ => ()
-            },
-            _               => ()
-    }}
-    Ok(pub_art_set)
+        
+        referene_list
+    }
+}
+impl FromXMLNode for PubMedPubDate {
+    fn from_node(node: &Node) -> Self {
+        let mut pubmed_pub_date = PubMedPubDate {
+            pub_status: node.attribute("PubStatus")
+                             .map(|s| s.to_string()),
+            year: None,
+            month: None,
+            day: None
+        };
 
+        for elem in node
+            .children()
+            .filter(|e| e.is_element()){
+             match elem.tag_name().name() {
+                 "Year"  => pubmed_pub_date.year = elem.text().map(|e| e.to_string()),
+                 "Month" => pubmed_pub_date.month = elem.text().map(|e| e.to_string()),  
+                 "Day"   => pubmed_pub_date.day = elem.text().map(|e| e.to_string()),  
+                 _       => ()              
+             }
+        }
+        pubmed_pub_date
+    }
+}
+impl FromXMLNode for PubmedData {
+    fn from_node(node: &Node) -> Self {
+        let mut pubmed_data = PubmedData {
+            publication_status: None,
+            article_id_list: None,
+            reference_list: None,
+            history: Vec::new()
+        };
+        
+        for elem in node
+            .children()
+            .filter(|n| n.is_element()) {
+            
+            match elem.tag_name().name() {
+                "PublicationStatus" => pubmed_data.publication_status = elem.text().map(|e| e.to_string()),
+                "ArticleIdList"     => pubmed_data.article_id_list = Some(ArticleIdList::from_node(&elem)),
+                "ReferenceList"     => pubmed_data.reference_list  = Some(ReferenceList::from_node(&elem)),
+                "History"           => {
+                    for pub_date in elem.children().filter(|e| e.is_element()) {
+                        pubmed_data.history.push(
+                            PubMedPubDate::from_node(&pub_date)
+                        )
+                    }
+                }
+                _                   => ()
+
+            }
+
+        }
+
+        pubmed_data
+    }
 }
 
-//-------------------------------------------------------
+//MedlineCitation fields
+impl FromXMLNode for PMID {
+    fn from_node(node: &Node) -> Self {
+        PMID {
+            version: node.attribute("Version")
+                             .map(|s| s.to_string()),
+            
+            value: node.text().map(|s| s.to_string())
+        }
+    }
+}
+impl FromXMLNode for PubDate {
+    fn from_node(node: &Node) -> Self {
+            let mut date = PubDate {
+                year: None,
+                month: None,
+                day: None
+            };
 
+            for elem in node
+                .children()
+                .filter(|e| e.is_element()) {
+                
+                match elem.tag_name().name() {
+                    "Year" => date.year = elem.text().map(|s| s.to_string()),
+                    "Month" => date.month = elem.text().map(|s| s.to_string()),
+                    "Day" => date.day = elem.text().map(|s| s.to_string()),
+                    _ => ()
+                }
+            }
+           
+            date
+        
+    }
+}
+impl FromXMLNode for ISSN {
+    fn from_node(node: &Node) -> Self {
+        ISSN {
+            issn_type: node.attribute("IssnType")
+                       .map(|n| n.to_string()),
+            value: node.text()
+                   .map(|t| t.to_string())
+        }
+    }
+}
+impl FromXMLNode for JournalIssue {
+    fn from_node(node: &Node) -> Self {
+        let mut journal_issue =  JournalIssue {
+            cited_medium: node.attribute("CitedMedium")
+                          .map(|e| e.to_string()),
+            volume: None,
+            issue:  None,
+            pub_date: None
+        };
+        for elem in node
+                         .children()
+                         .filter(|n| n.is_element()) {
+            
+            match elem.tag_name().name() {
+                "Volume" => {
+                    journal_issue.volume = elem.text().map(|e| e.to_string())
+                },
+                "Issue" => {
+                    journal_issue.issue = elem.text().map(|e| e.to_string()) 
+                },
+                "PubDate" => {
+                    journal_issue.pub_date = Some(PubDate::from_node(&elem))
+                }
+                _ => ()
+            }
+        }
+        journal_issue
+    }
+}
+impl FromXMLNode for Journal {
+    fn from_node(node: &Node) -> Self {
+        let mut journal = Journal {
+            issn: None,
+            journal_issue: None,
+            title: None,
+            iso_abbr: None
+        };
+        
+        for elem in node 
+                 .children()
+                 .filter(|e| e.is_element()) { 
+            match elem.tag_name().name() {
+                "ISSN" => {
+                    journal.issn = Some(ISSN::from_node(&elem))
+                },
+                "JournalIssue" => {
+                    journal.journal_issue = Some(JournalIssue::from_node(&elem))
+                },
+                "Title" => {
+                    journal.title = elem.text()
+                                    .map(|e| e.to_string())
+                },
+                "ISOAbbreviation" => {
+                    journal.iso_abbr = elem.text()
+                                       .map(|e| e.to_string())
+                },
+                _ => ()
+            }
+        }
+
+        journal
+    }
+}
+impl FromXMLNode for ELocationID {
+    fn from_node(node: &Node) -> Self {
+        ELocationID {
+            eid_type: node.attribute("EIdType")
+                      .map(|e| e.to_string()),
+            valid_yn: node.attribute("ValidYN")
+                      .map(|e| e.to_string()),
+            value: node.text().map(|t|t.to_string())
+        }
+    }
+}
+impl FromXMLNode for AbstractText {
+    fn from_node(node: &Node) -> Self {
+        let mut abstract_text = AbstractText {
+            label: node.attribute("Label")
+                   .map(|e| e.to_string()),
+            nlm_category: node.attribute("NlmCategory")
+                   .map(|e| e.to_string()),
+            value: None
+        };
+        
+        let mut txt = Vec::new();
+        for elem in node 
+            .children() {
+            
+            if elem.is_text() {
+                match elem.text() {
+                    Some(t) => txt.push(t),
+                    None => ()
+                }
+                
+            }
+            
+            if elem.is_element() {
+               &txt.push("<");
+               if elem.namespaces().len() > 0 {
+                   for ns in elem.namespaces() {
+                       txt.push(ns.name().unwrap());
+                       txt.push(":");
+                       txt.push(elem.tag_name().name());
+                       txt.push(" xmlns:");
+                       txt.push(ns.name().unwrap());
+                       txt.push("=");
+                       txt.push("\"");
+                       txt.push(ns.uri());
+                       txt.push("\"");
+                   }
+               }
+               else {
+                   &txt.push(elem.tag_name().name());
+               }
+               &txt.push(">");
+                
+                if elem.has_children() {
+                        for c in elem.children() {
+                           
+                            if c.is_element() {
+                           &txt.push("<");
+                           if c.namespaces().len() > 0 {
+                           for ns in c.namespaces() {
+                           txt.push(ns.name().unwrap());
+                           txt.push(":");
+                           txt.push(c.tag_name().name());
+                           txt.push(" xmlns:");
+                           txt.push(ns.name().unwrap());
+                           txt.push("=");
+                           txt.push("\"");
+                           txt.push(ns.uri());
+                           txt.push("\"");
+                        }
+                   }
+                   else {
+                       &txt.push(c.tag_name().name());
+                   }
+                   &txt.push(">");
+                   match c.text() {
+                                    Some(t) => txt.push(t),
+                                    None => ()
+                               }
+                   &txt.push("</");
+                      if c.namespaces().len() > 0 {
+                          for n in c.namespaces() {
+                                  txt.push(n.name().unwrap());
+                                  txt.push(":");
+                          }
+               }
+               &txt.push(c.tag_name().name());
+               &txt.push(">");
+                   }
+                   else {
+                    match c.text() {
+                        Some(t) => &txt.push(&t),
+                        None => &txt.push("")
+                    };
+                }
+                        
+                    
+                    };
+                }// ends here
+                else {
+                    match elem.text() {
+                        Some(t) => &txt.push(&t),
+                        None => &txt.push("")
+                    };
+                }
+                
+               &txt.push("</");
+               if elem.namespaces().len() > 0 {
+                   for ns in elem.namespaces() {
+                           txt.push(ns.name().unwrap());
+                           txt.push(":");
+                   }
+               }
+               &txt.push(elem.tag_name().name());
+               &txt.push(">");
+            }
+            abstract_text.value = Some(txt.concat())
+        }
+        
+        abstract_text
+    }
+}
+impl FromXMLNode for Abstract {
+    fn from_node(node: &Node) -> Self {
+        let mut abs = Abstract {
+            text: Vec::new()
+        };
+
+        for elem in node 
+            .children()
+            .filter(|e| e.is_element()) {
+                match elem.tag_name().name() {
+                    "AbstractText" => abs.text.push(
+                        AbstractText::from_node(&elem)
+                    ),
+                    _ => ()
+                }
+        }
+
+        abs
+        
+    }
+}
+impl FromXMLNode for Article {
+    fn from_node(node: &Node) -> Self {
+        let mut article = Article {
+            pub_model: node.attribute("PubModel")
+                            .map(|a| a.to_string()),
+            title: None,
+            journal: None,
+            elocation_id: None,
+            language: None,
+            abstract_text: None
+            
+      };
+      
+      for elem in node 
+                       .children()
+                       .filter(|e| e.is_element()) {
+          
+          match elem.tag_name().name() {
+              "ArticleTitle" => {
+                  article.title = elem.text() 
+                                  .map(|e| e.to_string())
+              },
+              "Journal" => {
+                  article.journal = Some(Journal::from_node(&elem))
+              },
+              "ELocationID" => {
+                  article.elocation_id = Some(ELocationID::from_node(&elem))
+              },
+              "Language" => {
+                  article.language = elem.text()
+                                         .map(|e| e.to_string())
+              },
+              "Abstract" => {
+                  article.abstract_text = Some(Abstract::from_node(&elem))
+              },
+              _ => ()
+          }
+      }
+      article
+    }
+}
+impl FromXMLNode for MedlineCitation {
+    fn from_node(node: &Node) -> Self {
+        let mut medline_citation = MedlineCitation {
+            status: node.attribute("Status")
+                             .map(|s| s.to_string()),
+            
+            owner: node.attribute("Owner")
+                             .map(|s| s.to_string()),
+            pmid: None,
+
+            date_revised: None,
+
+            article: None
+        };
+
+        for elem in node
+            .children() 
+            .filter(|e| e.is_element()) {
+                match elem.tag_name().name() { 
+                    "PMID" => medline_citation.pmid =  Some(PMID::from_node(&elem)),
+                    "DateRevised" => medline_citation.date_revised = Some(PubDate::from_node(&elem)),
+                    "Article" => medline_citation.article = Some(Article::from_node(&elem)),                                      
+                    _ => ()
+                }
+        }
+
+        medline_citation
+
+    }
+}
