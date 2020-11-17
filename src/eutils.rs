@@ -179,7 +179,7 @@ impl<'a> Eutils for EFetch<'a> {
         fn build_url(&self) -> String {
              let mut url_string = format!("{}efetch.fcgi?",BASE);
              url_string.push_str(&(format!("db={}", &self.db)));
-             url_string.push_str(&(format!("&idlist={}", &self.id_list.join(","))));
+             url_string.push_str(&(format!("&id={}", &self.id_list.join(","))));
              
              if let Some(s) = &self.webenv {
                  url_string.push_str(&(format!("&WebEnv={}", s)))
