@@ -23,38 +23,40 @@ pub trait Eutils {
 }
 
 #[derive(Debug, PartialEq)]
-pub struct ESearch {
+pub struct ESearch<'a> {
             // required
             db: DB,
             // required 
-            term: String,
+            term: &'a str,
             use_history: bool,
-            webenv: Option<String>,
-            query_key: Option<String>,
-            retstart: Option<String>,
-            retmax: Option<String>,
-            rettype: Option<String>,
-            retmode: Option<String>,
-            sort: Option<String>,
-            field: Option<String>,
-            idtype: Option<String>,
-            datetype: Option<String>,
-            reldate: Option<String>,
-            mindate_maxdate: Option<(String,String)>
+            webenv: Option<&'a str>,
+            query_key: Option<&'a str>,
+            retstart: Option<&'a str>,
+            retmax: Option<&'a str>,
+            rettype: Option<&'a str>,
+            retmode: Option<&'a str>,
+            sort: Option<&'a str>,
+            field: Option<&'a str>,
+            idtype: Option<&'a str>,
+            datetype: Option<&'a str>,
+            reldate: Option<&'a str>,
+            mindate_maxdate: Option<(&'a str,&'a str)>
 }
 
-impl Default for ESearch {
+
+
+impl<'a> Default for ESearch<'a> {
     fn default() -> Self {
         ESearch {
             db: DB::Pubmed,
-            term: "".to_string(),
+            term: "",
             use_history: true,
             webenv: None,
             query_key: None,
             retstart: None,
             retmax: None,
-            retmode: Some("xml".to_string()),
-            rettype: Some("xml".to_string()),
+            retmode: Some("xml"),
+            rettype: Some("xml"),
             sort: None,
             field: None,
             idtype: None,
@@ -65,8 +67,8 @@ impl Default for ESearch {
     }
 }
 
-impl ESearch {
-    fn new(db: DB, term: String) -> ESearch {
+impl<'a> ESearch<'a> {
+    fn new(db: DB, term: &'a str) -> Self {
         ESearch {
             db, 
             term,
@@ -75,7 +77,7 @@ impl ESearch {
     }
 }
 
-impl Eutils for ESearch {
+impl<'a> Eutils for ESearch<'a> {
     fn build_url(&self) -> String {
         let mut url_str = format!("{}esearch.fcgi?", BASE);
         url_str.push_str(&(format!("db={}", self.db)));
@@ -129,23 +131,23 @@ impl Eutils for ESearch {
 
 
 #[derive(Debug, PartialEq)]
-pub struct EFetch {
+pub struct EFetch<'a> {
     db: DB, 
-    id_list: Vec<String>,
-    webenv: Option<String>,
-    query_key: Option<String>,  
-    retstart: Option<String>,
-    retmax: Option<String>,
-    rettype: Option<String>,
-    retmode: Option<String>,
-    strand: Option<String>,
-    seq_start: Option<String>,
-    seq_stop: Option<String>,
+    id_list: Vec<&'a str>,
+    webenv: Option<&'a str>,
+    query_key: Option<&'a str>,  
+    retstart: Option<&'a str>,
+    retmax: Option<&'a str>,
+    rettype: Option<&'a str>,
+    retmode: Option<&'a str>,
+    strand: Option<&'a str>,
+    seq_start: Option<&'a str>,
+    seq_stop: Option<&'a str>,
     //TODO: implement as an enum for blobs.
-    complexity: Option<String>,
+    complexity: Option<&'a str>,
 }
 
-impl Default for EFetch {
+impl<'a> Default for EFetch<'a> {
     fn default() -> Self {
         EFetch {
             db: DB::Pubmed,
@@ -154,8 +156,8 @@ impl Default for EFetch {
             query_key: None,
             retstart: None,
             retmax: None,
-            retmode: Some("xml".to_string()),
-            rettype: Some("xml".to_string()),
+            retmode: Some("xml"),
+            rettype: Some("xml"),
             strand: None,
             seq_start: None,
             seq_stop: None,
@@ -164,9 +166,9 @@ impl Default for EFetch {
     }
 }
 
-impl EFetch {
+impl<'a> EFetch<'a> {
 
-    fn new(db: DB, id_list: Vec<String>) -> EFetch {
+    fn new(db: DB, id_list: Vec<&'a str>) -> Self {
         EFetch {
             db,
             id_list,
@@ -175,7 +177,7 @@ impl EFetch {
     }
 }
 
-impl Eutils for EFetch {
+impl<'a> Eutils for EFetch<'a> {
          fn build_url(&self) -> String {
              let mut url_string = format!("{}efetch.fcgi?",BASE);
              url_string.push_str(&(format!("db={}", &self.db)));
