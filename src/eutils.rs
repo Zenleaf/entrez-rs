@@ -43,6 +43,38 @@ pub struct ESearch {
             mindate_maxdate: Option<(String,String)>
 }
 
+impl Default for ESearch {
+    fn default() -> Self {
+        ESearch {
+            db: DB::Pubmed,
+            term: "".to_string(),
+            use_history: true,
+            webenv: None,
+            query_key: None,
+            retstart: None,
+            retmax: None,
+            retmode: Some("xml".to_string()),
+            rettype: Some("xml".to_string()),
+            sort: None,
+            field: None,
+            idtype: None,
+            datetype: None,
+            reldate: None,
+            mindate_maxdate: None
+        }
+    }
+}
+
+impl ESearch {
+    fn new(db: DB, term: String) -> ESearch {
+        ESearch {
+            db, 
+            term,
+            .. Default::default()
+        }
+    }
+}
+
 impl Eutils for ESearch {
     fn build_url(&self) -> String {
         let mut url_str = format!("{}esearch.fcgi?", BASE);
@@ -95,27 +127,6 @@ impl Eutils for ESearch {
 
 }
 
-impl Default for ESearch {
-    fn default() -> Self {
-        ESearch {
-            db: DB::Pubmed,
-            term: "".to_string(),
-            use_history: true,
-            webenv: None,
-            query_key: None,
-            retstart: None,
-            retmax: None,
-            retmode: Some("xml".to_string()),
-            rettype: Some("xml".to_string()),
-            sort: None,
-            field: None,
-            idtype: None,
-            datetype: None,
-            reldate: None,
-            mindate_maxdate: None
-        }
-    }
-}
 
 #[derive(Debug, PartialEq)]
 pub struct EFetch {
@@ -132,6 +143,36 @@ pub struct EFetch {
     seq_stop: Option<String>,
     //TODO: implement as an enum for blobs.
     complexity: Option<String>,
+}
+
+impl Default for EFetch {
+    fn default() -> Self {
+        EFetch {
+            db: DB::Pubmed,
+            id_list: Vec::new(),
+            webenv: None,
+            query_key: None,
+            retstart: None,
+            retmax: None,
+            retmode: Some("xml".to_string()),
+            rettype: Some("xml".to_string()),
+            strand: None,
+            seq_start: None,
+            seq_stop: None,
+            complexity: None
+        }
+    }
+}
+
+impl EFetch {
+
+    fn new(db: DB, id_list: Vec<String>) -> EFetch {
+        EFetch {
+            db,
+            id_list,
+            ..Default::default()
+        }
+    }
 }
 
 impl Eutils for EFetch {
