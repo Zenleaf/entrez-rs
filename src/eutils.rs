@@ -44,7 +44,6 @@ pub struct ESearch<'a> {
 }
 
 
-
 impl<'a> Default for ESearch<'a> {
     fn default() -> Self {
         ESearch {
@@ -68,7 +67,7 @@ impl<'a> Default for ESearch<'a> {
 }
 
 impl<'a> ESearch<'a> {
-    fn new(db: DB, term: &'a str) -> Self {
+    pub fn new(db: DB, term: &'a str) -> Self {
         ESearch {
             db, 
             term,
@@ -129,7 +128,6 @@ impl<'a> Eutils for ESearch<'a> {
 
 }
 
-
 #[derive(Debug, PartialEq)]
 pub struct EFetch<'a> {
     db: DB, 
@@ -168,7 +166,7 @@ impl<'a> Default for EFetch<'a> {
 
 impl<'a> EFetch<'a> {
 
-    fn new(db: DB, id_list: Vec<&'a str>) -> Self {
+    pub fn new(db: DB, id_list: Vec<&'a str>) -> Self {
         EFetch {
             db,
             id_list,
@@ -178,7 +176,7 @@ impl<'a> EFetch<'a> {
 }
 
 impl<'a> Eutils for EFetch<'a> {
-         fn build_url(&self) -> String {
+        fn build_url(&self) -> String {
              let mut url_string = format!("{}efetch.fcgi?",BASE);
              url_string.push_str(&(format!("db={}", &self.db)));
              url_string.push_str(&(format!("&idlist={}", &self.id_list.join(","))));
