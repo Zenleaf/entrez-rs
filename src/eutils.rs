@@ -25,22 +25,22 @@ pub trait Eutils {
 #[derive(Debug, PartialEq)]
 pub struct ESearch<'a> {
             // required
-            db: DB,
+            pub db: DB,
             // required 
-            term: &'a str,
-            use_history: bool,
-            webenv: Option<&'a str>,
-            query_key: Option<&'a str>,
-            retstart: Option<&'a str>,
-            retmax: Option<&'a str>,
-            rettype: Option<&'a str>,
-            retmode: Option<&'a str>,
-            sort: Option<&'a str>,
-            field: Option<&'a str>,
-            idtype: Option<&'a str>,
-            datetype: Option<&'a str>,
-            reldate: Option<&'a str>,
-            mindate_maxdate: Option<(&'a str,&'a str)>
+            pub term: &'a str,
+            pub use_history: bool,
+            pub webenv: Option<&'a str>,
+            pub query_key: Option<&'a str>,
+            pub retstart: Option<&'a str>,
+            pub retmax: Option<&'a str>,
+            pub rettype: Option<&'a str>,
+            pub retmode: Option<&'a str>,
+            pub sort: Option<&'a str>,
+            pub field: Option<&'a str>,
+            pub idtype: Option<&'a str>,
+            pub datetype: Option<&'a str>,
+            pub reldate: Option<&'a str>,
+            pub mindate_maxdate: Option<(&'a str,&'a str)>
 }
 
 
@@ -130,19 +130,19 @@ impl<'a> Eutils for ESearch<'a> {
 
 #[derive(Debug, PartialEq)]
 pub struct EFetch<'a> {
-    db: DB, 
-    id_list: Vec<&'a str>,
-    webenv: Option<&'a str>,
-    query_key: Option<&'a str>,  
-    retstart: Option<&'a str>,
-    retmax: Option<&'a str>,
-    rettype: Option<&'a str>,
-    retmode: Option<&'a str>,
-    strand: Option<&'a str>,
-    seq_start: Option<&'a str>,
-    seq_stop: Option<&'a str>,
+    pub db: DB, 
+    pub id_list: Vec<&'a str>,
+    pub webenv: Option<&'a str>,
+    pub query_key: Option<&'a str>,  
+    pub retstart: Option<&'a str>,
+    pub retmax: Option<&'a str>,
+    pub rettype: Option<&'a str>,
+    pub retmode: Option<&'a str>,
+    pub strand: Option<&'a str>,
+    pub seq_start: Option<&'a str>,
+    pub seq_stop: Option<&'a str>,
     //TODO: implement as an enum for blobs.
-    complexity: Option<&'a str>,
+    pub complexity: Option<&'a str>,
 }
 
 impl<'a> Default for EFetch<'a> {
