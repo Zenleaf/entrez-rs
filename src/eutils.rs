@@ -9,6 +9,10 @@ const BASE: &str = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/";
 pub enum DB {
     Pubmed
 }
+pub enum Error {
+    Failed,
+    NoConnection
+}
 
 impl Display for DB {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
@@ -20,6 +24,15 @@ impl Display for DB {
 
 pub trait Eutils {
     fn build_url(&self) -> String;
+
+    fn run(&self) -> Result<String, reqwest::Error> {
+        let url = self.build_url();
+        let res = reqwest::blocking::get(&url)?
+          .text();
+
+        res
+    }
+
 }
 
 #[derive(Debug, PartialEq)]
@@ -76,6 +89,7 @@ impl<'a> ESearch<'a> {
     }
 }
 
+
 impl<'a> Eutils for ESearch<'a> {
     fn build_url(&self) -> String {
         let mut url_str = format!("{}esearch.fcgi?", BASE);
@@ -125,7 +139,6 @@ impl<'a> Eutils for ESearch<'a> {
         
         return url_str;
     }
-
 }
 
 #[derive(Debug, PartialEq)]
@@ -175,8 +188,9 @@ impl<'a> EFetch<'a> {
     }
 }
 
+
 impl<'a> Eutils for EFetch<'a> {
-        fn build_url(&self) -> String {
+    fn build_url(&self) -> String {
              let mut url_string = format!("{}efetch.fcgi?",BASE);
              url_string.push_str(&(format!("db={}", &self.db)));
              url_string.push_str(&(format!("&id={}", &self.id_list.join(","))));

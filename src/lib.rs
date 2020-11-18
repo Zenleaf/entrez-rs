@@ -1,14 +1,21 @@
 pub mod eutils;
 pub mod parser;
 
-extern crate roxmltree;
-extern crate quick_xml;
-extern crate serde;
-
 #[cfg(test)]
 mod tests {
+    use super::eutils::*;
+    
     #[test]
-    fn it_works() {
-        assert_eq!(2 + 2, 4);
+    fn build_esearch2() {
+        let url = ESearch::new(DB::Pubmed, "eclampsia")
+        .build_url();
+  
+    
+        assert_eq!(
+            &url,
+            "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=pubmed&term=eclampsia&usehistory=y&rettype=xml&retmode=xml"
+        );
     }
+
+  
 }
