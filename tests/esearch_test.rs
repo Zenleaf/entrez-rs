@@ -2,19 +2,20 @@ extern crate entrez_rs;
 
 use entrez_rs::eutils::{Eutils, ESearch, DB};
 use entrez_rs::parser::esearch::{ESearchResult};
+use entrez_rs::errors::Error;
 
 #[test]
-fn eseasrch_run_test() -> Result<(), String>  {
+fn esearch_run_test() -> Result<(), Error>  {
         let xml = ESearch::new(
             DB::Pubmed, 
-            "eclamsia")
-            .run().expect("Failed to retrieve data from Entrez");
+            "eclampsia")
+            .run()?;
 
         let parsed = ESearchResult::read(&xml);
 
-        println!("{:#?}", &parsed.expect("Failed to parse XML")
-                           .id_list
-                           .id);
+        println!("{:#?}", &parsed?
+                          .id_list
+                          .id);
 
         Ok(())
 }

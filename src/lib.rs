@@ -1,12 +1,13 @@
 pub mod eutils;
 pub mod parser;
+pub mod errors;
 
 #[cfg(test)]
 mod tests {
     use super::eutils::*;
     
     #[test]
-    fn build_esearch2() {
+    fn build_esearch() {
         let url = ESearch::new(DB::Pubmed, "eclampsia")
         .build_url();
   
@@ -16,6 +17,4 @@ mod tests {
             "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=pubmed&term=eclampsia&usehistory=y&rettype=xml&retmode=xml"
         );
     }
-
-  
 }

@@ -2,16 +2,11 @@
 use std::fmt::{Display, Formatter};
 use std::default::Default;
 
-
 const BASE: &str = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/";
     
 #[derive(Debug, PartialEq)]
 pub enum DB {
     Pubmed
-}
-pub enum Error {
-    Failed,
-    NoConnection
 }
 
 impl Display for DB {
@@ -28,7 +23,7 @@ pub trait Eutils {
     fn run(&self) -> Result<String, reqwest::Error> {
         let url = self.build_url();
         let res = reqwest::blocking::get(&url)?
-          .text();
+                  .text();
 
         res
     }
