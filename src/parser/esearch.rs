@@ -1,3 +1,38 @@
+//! Utilities to parse XML results obtained using [ESearch](super::super::eutils::ESearch).
+ 
+//! # Description
+//! When using [ESearch](super::super::eutils::ESearch),
+//! the resulting XML
+//! is as follows:
+//! ``` xml
+//! <?xml version="1.0" encoding="UTF-8" ?>
+//! <!DOCTYPE eSearchResult PUBLIC "-//NLM//DTD esearch 20060628//EN" "https://eutils.ncbi.nlm.nih.gov/eutils/dtd/20060628/esearch.dtd">
+//! <eSearchResult>
+//!    ...
+//! </eSearchResult>
+//!  ```
+//! The [read](ESearchResult::read) function will parse this XML into an [ESearchResult]
+//! struct.
+//! 
+//! # Example
+//! 
+//!  ```
+//!   use entrez_rs::eutils::{Eutils, ESearch, DB};
+//!   use entrez_rs::parser::esearch::{ESearchResult};
+//! 
+//!   let xml = ESearch::new(
+//!         DB::Pubmed, 
+//!         "sars_cov_2") 
+//!         .run().expect("Connection error");
+//! 
+//!   // Use the read function to parse the xml result.
+//!   let parsed = ESearchResult::read(&xml)
+//!                .expect("Parsing error");
+//! 
+//!   assert_eq!(parsed.id_list.ids.len(), 20);
+//!   ```
+
+
 extern crate serde;
 extern crate quick_xml;
 use serde::{Deserialize};
@@ -7,7 +42,7 @@ use quick_xml::de::{from_str, DeError};
 #[derive(Debug, Deserialize, PartialEq)]
 pub struct IdList {
     #[serde(rename = "Id", default)]
-    pub id: Vec<String>
+    pub ids: Vec<String>
 }
 
 #[derive(Debug, Deserialize, PartialEq)]

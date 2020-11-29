@@ -17,16 +17,17 @@ impl Display for DB {
     }
 }
 
+#[derive(Debug, PartialEq)]
+pub enum XMLResult{
+    ESearchResultXML(String),
+    PubmedArticleSetXML(String)
+}
+
 pub trait Eutils {
     fn build_url(&self) -> String;
 
-    fn run(&self) -> Result<String, reqwest::Error> {
-        let url = self.build_url();
-        let res = reqwest::blocking::get(&url)?
-                  .text();
-
-        res
-    }
+    fn run(&self) -> Result<String, reqwest::Error>;
+    
 
 }
 
@@ -134,6 +135,16 @@ impl<'a> Eutils for ESearch<'a> {
         
         return url_str;
     }
+
+    fn run(&self) -> Result<String, reqwest::Error> {
+        
+        let url = self.build_url();
+        let res = reqwest::blocking::get(&url)?
+                  .text();
+
+        res
+        
+    }
 }
 
 #[derive(Debug, PartialEq)]
@@ -225,8 +236,13 @@ impl<'a> Eutils for EFetch<'a> {
             } 
              url_string
     }
+    fn run(&self) -> Result<String, reqwest::Error> {
+        
+        let url = self.build_url();
+        let res = reqwest::blocking::get(&url)?
+                  .text();
+        
+        res
+        
+    }
 }
-    
-
-
-
