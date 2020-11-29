@@ -17,7 +17,7 @@ It also provides tools to parse the XML results from Entrez.
 Add the following to your Cargo.toml:
 ```toml
    [dependencies]
-   entrez-rs = "0.1.2-alpha"
+   entrez-rs = "0.1.2"
 ```
 
 ## Usage
