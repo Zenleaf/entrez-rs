@@ -1,6 +1,6 @@
 [package]
 name = "entrez-rs"
-version = "0.1.2-alpha"
+version = "0.1.2"
 authors = ["Suneej Surendran-Nair <suneejnair@gmail.com>"]
 description = "Rust wrapper for the Entrez API"
 edition   = "2018"
