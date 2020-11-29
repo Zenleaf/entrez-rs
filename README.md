@@ -15,10 +15,10 @@ It also provides tools to parse the XML results from Entrez.
 ## Installation
 
 Add the following to your Cargo.toml:
-```toml
-   [dependencies]
-   entrez-rs = "0.1.2-alpha"
-```
+> ```toml
+>   [dependencies]
+>   entrez-rs = "0.1.2-alpha"
+>```
 
 ## Usage
 ```rust
