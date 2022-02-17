@@ -45,129 +45,129 @@ use super::super::errors::{Error};
 
 #[derive(Debug, PartialEq)]
 pub struct Reference {
-    citation: Option<String>,
-    article_id_list: ArticleIdList
+    pub citation: Option<String>,
+    pub article_id_list: ArticleIdList
 }
 
 #[derive(Debug, PartialEq)]
 pub struct ArticleId {
-    id_type: Option<String>,
-    id: Option<String>
+    pub id_type: Option<String>,
+    pub id: Option<String>
 }
 
 #[derive(Debug, PartialEq)]
 pub struct ArticleIdList {
-    article_ids: Vec<ArticleId>
+    pub article_ids: Vec<ArticleId>
 }
 
 #[derive(Debug, PartialEq)]
 pub struct ReferenceList {
-    references: Vec<Reference>
+    pub references: Vec<Reference>
 }
 
 #[derive(Debug, PartialEq)]
 pub struct PubmedData {
-    publication_status: Option<String>,
-    article_id_list: Option<ArticleIdList>,
-    reference_list: Option<ReferenceList>,
-    history: Vec<PubMedPubDate>
+    pub publication_status: Option<String>,
+    pub article_id_list: Option<ArticleIdList>,
+    pub reference_list: Option<ReferenceList>,
+    pub history: Vec<PubMedPubDate>
 }
 
 #[derive(Debug, PartialEq)]
 pub struct PubMedPubDate {
-    pub_status: Option<String>,
-    year: Option<String>,
-    month: Option<String>,
-    day: Option<String>
+    pub pub_status: Option<String>,
+    pub year: Option<String>,
+    pub month: Option<String>,
+    pub day: Option<String>
 }
 
 // MedlineCitation Fields
 #[derive(Debug, PartialEq)]
 pub struct PMID {
-    version: Option<String>,
-    value: Option<String>
+    pub version: Option<String>,
+    pub value: Option<String>
 }
 
 #[derive(Debug, PartialEq)]
 pub struct ISSN {
-    issn_type: Option<String>,
-    value: Option<String>
+    pub issn_type: Option<String>,
+    pub value: Option<String>
 }
 
 #[derive(Debug, PartialEq)]
 pub struct PubDate {
-    year: Option<String>,
-    month: Option<String>,
-    day: Option<String>
+    pub year: Option<String>,
+    pub month: Option<String>,
+    pub day: Option<String>
 }
 
 #[derive(Debug, PartialEq)]
 pub struct JournalIssue {
-    cited_medium: Option<String>,
-    volume: Option<String>,
-    issue: Option<String>,
-    pub_date: Option<PubDate>
+    pub cited_medium: Option<String>,
+    pub volume: Option<String>,
+    pub issue: Option<String>,
+    pub pub_date: Option<PubDate>
 }
 
 #[derive(Debug, PartialEq)]
 pub struct Journal {
-    issn: Option<ISSN>,
-    journal_issue: Option<JournalIssue>,
-    title: Option<String>,
-    iso_abbr: Option<String>
+    pub issn: Option<ISSN>,
+    pub journal_issue: Option<JournalIssue>,
+    pub title: Option<String>,
+    pub iso_abbr: Option<String>
 }
 
 #[derive(Debug, PartialEq)]
 pub struct ELocationID {
-    eid_type: Option<String>,
-    valid_yn: Option<String>,
-    value: Option<String>
+    pub eid_type: Option<String>,
+    pub valid_yn: Option<String>,
+    pub value: Option<String>
 }
 
 #[derive(Debug, PartialEq)]
 pub struct AbstractText {
-    label: Option<String>,
-    nlm_category: Option<String>,
-    value: Option<String>
+    pub label: Option<String>,
+    pub nlm_category: Option<String>,
+    pub value: Option<String>
 }
 
 #[derive(Debug, PartialEq)]
 pub struct Abstract {
-    text: Vec<AbstractText>
+    pub text: Vec<AbstractText>
 }
 
 #[derive(Debug, PartialEq)]
 pub struct Article {
-    pub_model: Option<String>,
-    title: Option<String>,
-    journal: Option<Journal>,
-    elocation_id: Option<ELocationID>,
-    language: Option<String>,
-    abstract_text: Option<Abstract>
+    pub pub_model: Option<String>,
+    pub title: Option<String>,
+    pub journal: Option<Journal>,
+    pub elocation_id: Option<ELocationID>,
+    pub language: Option<String>,
+    pub abstract_text: Option<Abstract>
 }
 
 #[derive(Debug, PartialEq)]
 pub struct MedlineJournalInfo {
-    country: Option<String>,
-    medline_ta: Option<String>,
-    nlm_unique_id: Option<String>,
-    issn_linking: Option<String>
+    pub country: Option<String>,
+    pub medline_ta: Option<String>,
+    pub nlm_unique_id: Option<String>,
+    pub issn_linking: Option<String>
 }
 
 #[derive(Debug, PartialEq)]
 pub struct MedlineCitation {
-    status: Option<String>,
-    owner: Option<String>,
-    pmid: Option<PMID>,
-    date_revised: Option<PubDate>,
-    article: Option<Article>,
-    medline_journal_info: Option<MedlineJournalInfo>
+    pub status: Option<String>,
+    pub owner: Option<String>,
+    pub pmid: Option<PMID>,
+    pub date_revised: Option<PubDate>,
+    pub article: Option<Article>,
+    pub medline_journal_info: Option<MedlineJournalInfo>
 }
 
 #[derive(Debug, PartialEq)]
 pub struct PubmedArticle {
-    medline_citation: Option<MedlineCitation>,
-    pubmed_data: Option<PubmedData>
+    pub medline_citation: Option<MedlineCitation>,
+    pub pubmed_data: Option<PubmedData>
 }
 
 #[derive(Debug, PartialEq)]
