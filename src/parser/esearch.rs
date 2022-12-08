@@ -48,35 +48,35 @@ pub struct IdList {
 #[derive(Debug, Deserialize, PartialEq)]
 pub struct Translation {
     #[serde(rename = "From", default)]
-    from: String,
+    pub from: String,
     #[serde(rename = "To", default)]
-    to: String,
+    pub to: String,
 }
 
 #[derive(Debug, Deserialize, PartialEq)]
 pub struct TranslationSet {
     #[serde(rename = "Translation")]
-    translation: Vec<Translation>
+    pub translation: Vec<Translation>
 }
 
 #[derive(Debug, Deserialize, PartialEq)]
 pub struct TranslationStack {
     #[serde(rename = "TermSet")]
-    term_set: Vec<TermSet>,
+    pub term_set: Vec<TermSet>,
     #[serde(rename = "OP")]
-    op: Vec<String>,
+    pub op: Vec<String>,
 }
 
 #[derive(Debug, Deserialize, PartialEq)]
 pub struct TermSet {
     #[serde(rename = "Term", default)]
-    term: String,
+    pub term: String,
     #[serde(rename = "Field", default)]
-    field: String,
+    pub field: String,
     #[serde(rename = "Count", default)]
-    count: u64,
+    pub count: u64,
     #[serde(rename = "Explode", default)]
-    explode: String,
+    pub explode: String,
 }
 
 
@@ -85,13 +85,13 @@ pub struct ESearchResult {
     #[serde(rename = "Count", default)]
     pub count: u64,
     #[serde(rename = "RetMax", default)]
-    ret_max: u64,
+    pub ret_max: u64,
     #[serde(rename = "RetStart", default)]
-    ret_start: u64,
+    pub ret_start: u64,
     #[serde(rename = "QueryKey", default)]
-    query_key: u64,
+    pub query_key: u64,
     #[serde(rename = "WebEnv", default)]
-    web_env: String,
+    pub web_env: String,
     #[serde(rename = "IdList")]
     pub id_list: IdList,
    // #[serde(rename = "TranslationSet")]
@@ -99,7 +99,7 @@ pub struct ESearchResult {
   //  #[serde(rename = "TranslationStack")]
   //  translation_stack: TranslationStack,
     #[serde(rename = "QueryTranslation", default)]
-    query_translation: String,
+    pub query_translation: String,
 }
 
 impl ESearchResult {

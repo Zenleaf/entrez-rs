@@ -16,8 +16,7 @@ fn esearch_run_test() -> Result<(), Error>  {
         let parsed = ESearchResult::read(&xml);
 
         println!("{:#?}", &parsed?
-                          .id_list
-                          .ids);
+                          .id_list);
         
         let pm_xml = EFetch::new(
            DB::Pubmed,
